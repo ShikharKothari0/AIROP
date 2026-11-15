@@ -46,4 +46,40 @@ public class GlobalExceptionhandler {
 
     }
 
+    @ExceptionHandler(AlertNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAlertNotFoundException(AlertNotFoundException ex, HttpServletRequest request){
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Alert Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(
+            org.springframework.web.server.ResponseStatusException ex,
+            HttpServletRequest request) {
+
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status == HttpStatus.SERVICE_UNAVAILABLE
+                        ? "KAFKA_UNAVAILABLE"
+                        : status.getReasonPhrase(),
+                ex.getReason() != null
+                        ? ex.getReason()
+                        : status.getReasonPhrase(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
+
 }

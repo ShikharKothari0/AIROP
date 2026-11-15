@@ -30,7 +30,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/api/users").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET,"/api/incidents/**").hasAnyRole("USER","OPERATOR","ADMIN").requestMatchers("api/incidents/**").hasAnyRole("OPERATOR", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET,"/api/incidents/**").hasAnyRole("USER","OPERATOR","ADMIN").requestMatchers("/api/incidents/**").hasAnyRole("OPERATOR", "ADMIN")
+                        .requestMatchers("/api/alerts/**").hasAnyRole("OPERATOR","ADMIN")
+                        .requestMatchers(
+                                "/actuator/health",
+                                "/actuator/info",
+                                "/actuator/metrics",
+                                "/actuator/metrics/**",
+                                "/actuator/prometheus"
+                        ).hasAnyRole("OPERATOR", "ADMIN")
                         .anyRequest().authenticated()
                 ).oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
